@@ -75,11 +75,11 @@ def get_user_by_id(id1):
 def create_user():
     body = request.get_json("users")
     if body is None:
-        return create_response(status = 404, message = "Cannot create user")
-    if (body["name"] == None or body["age"] == None or body["team"] == None):
-        return create_response(status = 404, message = "Cannot create user")
+        return create_response(status = 422, message = "Cannot create user")
+    if not ("name" in body.keys() and "team" in body.keys() and "age" in body.keys()):
+        return create_response(status = 422, message = "Cannot create user")
     user = db.create('users', body)
-    return create_response({ 'user': user }, status=201)
+    return create_response({ 'user': user }, status=201, message = "User successfully created")
 
 @app.route('/users/<id1>', methods = ['PUT'])
 def update_user(id1):
