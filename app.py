@@ -41,18 +41,69 @@ def create_response(
 """
 
 
-@app.route("/")
+@app.route("/", methods = ['GET'])
 def hello_world():
     return create_response({"content": "hello world!"})
 
 
-@app.route("/mirror/<name>")
+@app.route("/mirror/<name>", methods = ['GET'])
 def mirror(name):
     data = {"name": name}
     return create_response(data)
 
-
 # TODO: Implement the rest of the API here!
+@app.route("/users", methods = ['GET'])
+def users():
+    team = request.args.get("team")
+    if not team:
+        data = {"users": db.get("users")}
+        return create_response(data)
+    users = db.get("users")
+    team_users = [u for u in users if u["team"] == team]
+    data = {"users": team_users}
+    return create_response(data)
+
+@app.route("/users/<id1>", methods = ['GET'])
+def get_user_by_id(id1):
+    user = db.getById('users',int(id1))
+    data = {"user": user}
+    if(user == None):
+        return create_response(status = 404, message = "User not found")
+    return create_response(data)
+
+@app.route('/users', methods = ['POST'])
+def create_user():
+    body = request.get_json("users")
+    if body is None:
+        return create_response(status = 404, message = "Cannot create user")
+    if (body["name"] == None or body["age"] == None or body["team"] == None):
+        return create_response(status = 404, message = "Cannot create user")
+    user = db.create('users', body)
+    return create_response({ 'user': user }, status=201)
+
+@app.route('/users/<id1>', methods = ['PUT'])
+def update_user(id1):
+    valuesToUpdate = request.get_json("users")
+    if valuesToUpdate is None:
+        return create_response(status = 404, message = "nothing to update")
+    
+    user = db.updateById("users",int(id1),valuesToUpdate)
+    if user is None:
+        return create_response(status = 404, message = "User not found")
+    else:
+        return create_response({'user': user}, message = "User successfully updated")
+
+
+
+@app.route('/users/<id1>', methods = ['DELETE'])
+def delete_user(id1):
+    user = db.getById('users',int(id1))
+    if user == None:
+        return create_response(status = 404, message = "User not found")
+    else:
+        db.deleteById("users",int(id1))
+        return create_response(message = "User successfully deleted")
+
 
 """
 ~~~~~~~~~~~~ END API ~~~~~~~~~~~~

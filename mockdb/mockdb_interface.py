@@ -9,6 +9,15 @@ def get(type):
 
 
 def getById(type, id):
+    #print(id)
+    #print(type)
+    #print(get(type))
+    #for i in get(type):
+    #    print(i)
+    #    print(i["id"])
+    #    if (i["id"] == id):
+    #        return i
+    #return None
     return next((i for i in get(type) if i["id"] == id), None)
 
 
